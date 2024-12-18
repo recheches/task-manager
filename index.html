@@ -1,125 +1,334 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administrador de Tareas</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
       margin: 0;
       padding: 20px;
     }
     h1 {
       text-align: center;
+      font-size: 2em;
+      color: #333;
     }
     .task-container {
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
       background: white;
       padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      display: none;
+    }
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      text-align: center;
+    }
+    input, select, button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      font-size: 1em;
+      border: 1px solid #ccc;
       border-radius: 5px;
     }
-    .task {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-    }
-    .task:last-child {
-      border-bottom: none;
-    }
-    .completed {
-      text-decoration: line-through;
-      color: gray;
-    }
     .btn {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 5px 10px;
       cursor: pointer;
-      border-radius: 3px;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #0056b3;
     }
     .btn.delete {
       background-color: #dc3545;
     }
-    .btn:hover {
-      opacity: 0.9;
+    .btn.edit {
+      background-color: #28a745;
+    }
+    .btn.logout {
+      background-color: #ffc107;
+    }
+    .priority-select {
+      margin-left: 10px;
+    }
+    .task {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      background-color: #f9f9f9;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+    .task.completed {
+      text-decoration: line-through;
+      color: gray;
+      background-color: #f8d7da;
+    }
+    .task-text {
+      flex-grow: 1;
+      padding-left: 10px;
+      color: #333;
+      font-size: 1.1em;
+      max-width: 70%;
+    }
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .task-container button {
+      width: 100%;
+    }
+    .task .btn {
+      padding: 5px 10px;
+      font-size: 0.8em;
+      color: white;
+      border-radius: 5px;
+      border: none;
+      margin-top: 10px; /* Espacio entre la descripción y los botones */
+    }
+    .priority-low {
+      border-left: 5px solid yellow;
+    }
+    .priority-normal {
+      border-left: 5px solid green;
+    }
+    .priority-high {
+      border-left: 5px solid red;
+    }
+    .flag {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-left: 10px;
+    }
+    .priority-low-flag {
+      background-color: yellow;
+    }
+    .priority-normal-flag {
+      background-color: green;
+    }
+    .priority-high-flag {
+      background-color: red;
+    }
+    /* Estilo para los iconos */
+    .task .btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: transparent;
+      border: 1px solid #ccc;
+    }
+    .task .btn.edit {
+      background-color: #28a745;
+    }
+    .task .btn.delete {
+      background-color: #dc3545;
+    }
+    .task .btn i {
+      color: white;
+      font-size: 18px;
     }
   </style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Administrador de Tareas</h1>
-  <div class="task-container">
+  <div class="login-container" id="loginContainer">
+    <h2>Login</h2>
+    <input id="username" type="text" placeholder="Usuario" />
+    <input id="password" type="password" placeholder="Contraseña" />
+    <button id="loginBtn" class="btn">Iniciar sesión</button>
+    <p id="loginError" style="color: red; display: none;">Usuario o contraseña incorrectos</p>
+  </div>
+
+  <div class="task-container" id="taskContainer">
+    <h1>Administrador de Tareas</h1>
     <input id="taskInput" type="text" placeholder="Nueva tarea..." />
-    <button id="addTaskBtn" class="btn">Agregar</button>
+    <select id="priority" class="priority-select">
+      <option value="baja">Baja</option>
+      <option value="normal" selected>Normal</option>
+      <option value="alta">Alta</option>
+    </select>
+    <button id="addTaskBtn" class="btn">Agregar Tarea</button>
     <ul id="taskList"></ul>
+    <button id="logoutBtn" class="btn logout">Cerrar sesión</button>
+  </div>
+
+  <div id="editTaskModal" style="display: none;">
+    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);">
+      <h3>Editar Tarea</h3>
+      <input type="text" id="editTaskInput" />
+      <select id="editPriority" class="priority-select">
+        <option value="baja">Baja</option>
+        <option value="normal" selected>Normal</option>
+        <option value="alta">Alta</option>
+      </select>
+      <button id="saveEditBtn" class="btn">Guardar Cambios</button>
+      <button id="cancelEditBtn" class="btn">Cancelar</button>
+    </div>
   </div>
 
   <script>
+    const loginContainer = document.getElementById('loginContainer');
+    const taskContainer = document.getElementById('taskContainer');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
     const taskInput = document.getElementById('taskInput');
     const addTaskBtn = document.getElementById('addTaskBtn');
     const taskList = document.getElementById('taskList');
+    const prioritySelect = document.getElementById('priority');
+    const loginError = document.getElementById('loginError');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const editTaskModal = document.getElementById('editTaskModal');
+    const editTaskInput = document.getElementById('editTaskInput');
+    const editPrioritySelect = document.getElementById('editPriority');
+    const saveEditBtn = document.getElementById('saveEditBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
 
-    // Cargar tareas desde localStorage
+    const validUsername = 'admin';
+    const validPassword = '87mj7HmYQ7y#';
+    let currentTaskToEdit = null;
+
+    // Función para mostrar las tareas
     const loadTasks = () => {
       const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-      tasks.forEach(task => renderTask(task.text, task.completed));
+      tasks.forEach(task => renderTask(task.text, task.completed, task.priority, task.created, task.id));
     };
 
-    // Guardar tareas en localStorage
+    // Función para guardar tareas
     const saveTasks = () => {
       const tasks = Array.from(taskList.children).map(task => ({
-        text: task.querySelector('.task-text').textContent,
+        text: task.querySelector('.task-name').textContent,
         completed: task.classList.contains('completed'),
+        priority: task.classList.contains('priority-high') ? 'alta' :
+                  task.classList.contains('priority-normal') ? 'normal' : 'baja',
+        created: task.querySelector('.created-date').textContent,
+        id: task.id
       }));
       localStorage.setItem('tasks', JSON.stringify(tasks));
     };
 
-    // Renderizar una tarea
-    const renderTask = (text, completed = false) => {
+    // Función para renderizar tarea
+    const renderTask = (text, completed = false, priority = 'normal', created = new Date().toLocaleString(), id = new Date().getTime()) => {
       const li = document.createElement('li');
-      li.className = 'task';
+      li.className = `task ${priority === 'alta' ? 'priority-high' : priority === 'normal' ? 'priority-normal' : 'priority-low'}`;
+      li.id = id;
       if (completed) li.classList.add('completed');
 
-      const taskText = document.createElement('span');
-      taskText.textContent = text;
-      taskText.className = 'task-text';
+      const taskHeader = document.createElement('div');
+      taskHeader.className = 'task-header';
+
+      const taskName = document.createElement('span');
+      taskName.className = 'task-name';
+      taskName.textContent = text;
+
+      const createdDate = document.createElement('span');
+      createdDate.className = 'created-date';
+      createdDate.textContent = `Creada: ${created}`;
+
+      const buttonsContainer = document.createElement('div');
+      buttonsContainer.className = 'buttons';
+
+      // Botones de editar y eliminar con iconos
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn edit';
+      editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+      editBtn.onclick = () => {
+        currentTaskToEdit = li;
+        editTaskInput.value = taskName.textContent;
+        editPrioritySelect.value = priority;
+        editTaskModal.style.display = 'block';
+      };
 
       const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = 'Eliminar';
       deleteBtn.className = 'btn delete';
-      deleteBtn.addEventListener('click', () => {
-        li.remove();
-        saveTasks();
-      });
+      deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+      deleteBtn.onclick = () => {
+        if (confirm(`¿Estás seguro de eliminar la tarea "${taskName.textContent}"?`)) {
+          li.remove();
+          saveTasks();
+        }
+      };
 
-      li.appendChild(taskText);
-      li.appendChild(deleteBtn);
-      li.addEventListener('click', () => {
-        li.classList.toggle('completed');
-        saveTasks();
-      });
+      buttonsContainer.appendChild(editBtn);
+      buttonsContainer.appendChild(deleteBtn);
+      taskHeader.appendChild(taskName);
+      taskHeader.appendChild(createdDate);
+      taskHeader.appendChild(buttonsContainer);
+      li.appendChild(taskHeader);
 
       taskList.appendChild(li);
     };
 
-    // Agregar una nueva tarea
+    // Agregar tarea
     addTaskBtn.addEventListener('click', () => {
+      if (taskInput.value.trim() === '') return;
       const text = taskInput.value.trim();
-      if (text) {
-        renderTask(text);
-        saveTasks();
-        taskInput.value = '';
+      const priority = prioritySelect.value;
+      renderTask(text, false, priority);
+      saveTasks();
+      taskInput.value = '';
+    });
+
+    // Editar tarea
+    saveEditBtn.addEventListener('click', () => {
+      const newText = editTaskInput.value.trim();
+      const newPriority = editPrioritySelect.value;
+      if (!newText) return;
+      currentTaskToEdit.querySelector('.task-name').textContent = newText;
+      currentTaskToEdit.classList.remove('priority-high', 'priority-normal', 'priority-low');
+      currentTaskToEdit.classList.add(
+        newPriority === 'alta' ? 'priority-high' :
+        newPriority === 'normal' ? 'priority-normal' : 'priority-low'
+      );
+      saveTasks();
+      editTaskModal.style.display = 'none';
+      currentTaskToEdit = null;
+    });
+
+    cancelEditBtn.addEventListener('click', () => {
+      editTaskModal.style.display = 'none';
+      currentTaskToEdit = null;
+    });
+
+    // Iniciar sesión
+    loginBtn.addEventListener('click', () => {
+      if (usernameInput.value === validUsername && passwordInput.value === validPassword) {
+        loginContainer.style.display = 'none';
+        taskContainer.style.display = 'block';
+        loadTasks();
+      } else {
+        loginError.style.display = 'block';
       }
     });
 
-    // Inicializar tareas
-    loadTasks();
+    // Cerrar sesión
+    logoutBtn.addEventListener('click', () => {
+      loginContainer.style.display = 'block';
+      taskContainer.style.display = 'none';
+      usernameInput.value = '';
+      passwordInput.value = '';
+    });
   </script>
 </body>
 </html>
