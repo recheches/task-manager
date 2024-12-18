@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrador de Tareas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .task-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+    }
+    .task {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    .task:last-child {
+      border-bottom: none;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+    .btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .btn.delete {
+      background-color: #dc3545;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Administrador de Tareas</h1>
+  <div class="task-container">
+    <input id="taskInput" type="text" placeholder="Nueva tarea..." />
+    <button id="addTaskBtn" class="btn">Agregar</button>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById('taskInput');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const taskList = document.getElementById('taskList');
+
+    // Cargar tareas desde localStorage
+    const loadTasks = () => {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.forEach(task => renderTask(task.text, task.completed));
+    };
+
+    // Guardar tareas en localStorage
+    const saveTasks = () => {
+      const tasks = Array.from(taskList.children).map(task => ({
+        text: task.querySelector('.task-text').textContent,
+        completed: task.classList.contains('completed'),
+      }));
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    };
+
+    // Renderizar una tarea
+    const renderTask = (text, completed = false) => {
+      const li = document.createElement('li');
+      li.className = 'task';
+      if (completed) li.classList.add('completed');
+
+      const taskText = document.createElement('span');
+      taskText.textContent = text;
+      taskText.className = 'task-text';
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Eliminar';
+      deleteBtn.className = 'btn delete';
+      deleteBtn.addEventListener('click', () => {
+        li.remove();
+        saveTasks();
+      });
+
+      li.appendChild(taskText);
+      li.appendChild(deleteBtn);
+      li.addEventListener('click', () => {
+        li.classList.toggle('completed');
+        saveTasks();
+      });
+
+      taskList.appendChild(li);
+    };
+
+    // Agregar una nueva tarea
+    addTaskBtn.addEventListener('click', () => {
+      const text = taskInput.value.trim();
+      if (text) {
+        renderTask(text);
+        saveTasks();
+        taskInput.value = '';
+      }
+    });
+
+    // Inicializar tareas
+    loadTasks();
+  </script>
+</body>
+</html>
